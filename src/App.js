@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
-import "./App.css";
-import { Switch, Link, Route } from "react-router-dom";
+import { Navbar, Container, Nav } from "react-bootstrap";
+// import "./App.css";
+import { Link, Route } from "react-router-dom";
 
 const Home = () => {
   return (
@@ -65,21 +66,22 @@ function App() {
   }, []);
 
   return (
-    <div className="App">
-      <nav className="navbar navbar-light">
-        <ul className="nav navbar-nav">
-          <li>
-            <Link to="/">Home</Link>
-          </li>
-          <li>
-            <Link to="/category">Category</Link>
-          </li>
-          <li>
-            <Link to="/products">Products</Link>
-          </li>
-        </ul>
-      </nav>
-      {/* components will render if path matches */}
+    <>
+      <Navbar bg="light" expand="sm">
+        <Container className="">
+          <Navbar.Brand as={Link} to="/">My Weather App</Navbar.Brand>
+          <Navbar.Toggle aria-controls="basic-navbar-nav" />
+          <Navbar.Collapse id="basic-navbar-nav">
+            <Nav className="me-auto">
+              <Nav.Link as={Link} to="/">Current</Nav.Link>
+              <Nav.Link as={Link} to="/8-days-forecast">8 Days Forecast</Nav.Link>
+              <Nav.Link as={Link} to="/settings">Settings</Nav.Link>
+              <Nav.Link as={Link} to="/settings">About</Nav.Link>
+            </Nav>
+          </Navbar.Collapse>
+        </Container>
+      </Navbar>
+
       <Route exact path="/">
         <Home />
       </Route>
@@ -89,7 +91,7 @@ function App() {
       <Route path="/products">
         <Products />
       </Route>
-    </div>
+    </>
   );
 }
 
