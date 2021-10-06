@@ -3,6 +3,8 @@ import { Navbar, Container, Nav } from "react-bootstrap";
 // import "./App.css";
 import { Link, Route } from "react-router-dom";
 
+import Current from "./components/Current";
+
 const Home = () => {
   return (
     <div>
@@ -83,7 +85,7 @@ function App() {
       </Navbar>
 
       <Route exact path="/">
-        <Home />
+        <Current />
       </Route>
       <Route path="/category">
         <Category />
