@@ -5,12 +5,9 @@ export default function Minutely () {
 
     return (
         <div style={{ backgroundColor: "orange", width: "800px"}}>
-            <div>MINUTELY</div>
+            <div>Rain Forecust my minute for the next hour:</div>
             <Minute />
-            <Minute />
-            <Minute />
-            <Minute />
-            <Minute />
+          
             
         </div>
     )
