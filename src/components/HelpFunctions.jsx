@@ -24,16 +24,20 @@ export function getUVIndexString(UVIndex) {
       return <span style={{ color: "#FBDD1C" }}>MODERATE</span>;
     case "6":
     case "7":
-      return <span style={{ color: "#F19C1C", fontWeight: "bold" }}>HIGH</span>;
+      return <span style={{ color: "#F19C1C", fontWeight: "normal" }}>HIGH</span>;
     case "8":
     case "9":
     case "10":
       return (
-        <span style={{ color: "#E51416", fontWeight: "bold" }}>VERY HIGH</span>
+        <span style={{ color: "#E51416", fontWeight: "normal" }}>VERY HIGH</span>
       );
     default:
       return (
-        <span style={{ color: "#D12F81", fontWeight: "bold" }}>EXTREME</span>
+        <span style={{ color: "#D12F81", fontWeight: "normal" }}>EXTREME</span>
       );
   }
+}
+
+export function firstCharToUpperCase (string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
 }

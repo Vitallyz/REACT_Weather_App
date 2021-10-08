@@ -1,0 +1,54 @@
+{
+    "settings": {
+        "id": 1,
+        "defaultUnits": "metric",
+        "droneSuggestions": false,
+        "defaultCity": "Melbourne",
+        "lat": -37.813999,
+        "long": 144.963318
+    },
+    "locations": [
+        {
+            "id": 1,
+            "name": "Melbourne",
+            "lat": -37.813999,
+            "long": 144.963318
+        },
+        {
+            "id": 2,
+            "name": "Adelaide",
+            "lat": -34.905168,
+            "long": 138.558693
+        },
+        {
+            "id": 3,
+            "name": "Perth",
+            "lat": -32.053001,
+            "long": 115.872271
+        },
+        {
+            "id": 4,
+            "name": "Darwin",
+            "lat": -12.461969,
+            "long": 130.842866
+        },
+        {
+            "id": 5,
+            "name": "Brisbane",
+            "lat": -27.470728,
+            "long": 153.025870
+        },
+        {
+            "id": 6,
+            "name": "Sydney",
+            "lat": -33.878287,
+            "long": 151.169754
+        },
+        {
+            "id": 7,
+            "name": "Canberra",
+            "lat": -35.281515,
+            "long": 149.128620
+        }
+    ]
+}
