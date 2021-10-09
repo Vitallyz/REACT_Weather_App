@@ -24,38 +24,91 @@ const Category = () => {
   );
 };
 
-
+const serverCall = {
+  settingsLoaded: false,
+  weatherLoaded: false,
+};
 
 function App() {
+
+  const [ UIDisable, setUIDisable] = useState(true);
+  
   const [weatherData, setWeatherData] = useState({});
-  console.log("WeatherData when declared", weatherData);
+  // console.log("WeatherData when declared", weatherData);
 
+  console.log("Initializing Settings");
   // units setting state initialize + set default
-  const [ settings, setSettings] = useState({
-    units: "metric",
-    speed: "km/h",
-    speedFactor: 3.6,
-    temp: "°C"
-  })
+  const [settings, setSettings] = useState({
+  });
 
-// example of imperial units:
-// const [ units, setUnits] = useState({
-//   type: "imperial",
-//   speed: "miles/h",
-//   speedFactor: 1,
-//   temp: "°F"
-// })
+
+
+  const [ serverData, setServerData ] = useState();
+
+  function setSettingsTo (unitsType) {
+    if (unitsType === "metric") {
+      setSettings ({
+        ...settings,
+        units: "metric",
+        speed: "km/h",
+        speedFactor: 3.6,
+        temp: "°C",
+      });
+    }
+
+    if (unitsType === "imperial") {
+      setSettings ({
+        ...settings,
+        units: "imperial",
+        speed: "miles/h",
+        speedFactor: 1,
+        temp: "°F",
+      })
+    }
+  }
+
+
+  function fetchWeatherData(fetchData) {
+    if(!serverCall.weatherLoaded){
+      fetch(
+        `https://api.openweathermap.org/data/2.5/onecall?lat=${fetchData.lat}&lon=${fetchData.long}&units=${fetchData.defaultUnits}&exclude=none&appid=${APIKey}`
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          
+          serverCall.weatherLoaded = true;
+          setUIDisable(false);
+  
+          setWeatherData(data);
+          console.log(`WEATHER from server (fetched with units ${fetchData.defaultUnits}): `, data);
+        })
+  
+        .catch((e) => console.log("Error happened while getting Weather Data", e));  
+    }
+    
+  }
+
+  // example of imperial units:
+  // const [ units, setUnits] = useState({
+  //   type: "imperial",
+  //   speed: "miles/h",
+  //   speedFactor: 1,
+  //   temp: "°F"
+  // })
 
   useEffect(() => {
+
+
     
     
+
     // const cityName = "Melbourne";
 
     // melbourne
-    const cord = {
-      lat: -37.813999,
-      lon: 144.963318,
-    };
+    // const cord = {
+    //   lat: -37.813999,
+    //   lon: 144.963318,
+    // };
 
     // jerusalem
     // const cord = {
@@ -99,95 +152,126 @@ function App() {
     //   lon: 102.930753,
     // };
 
-
     // grab settings from server
-
-    fetch("http://localhost:3009/settings")
-      .then(response => response.json())
-      .then(data => {
-        console.log("Settings data that we got from server", data)
-        fetch(
-          `https://api.openweathermap.org/data/2.5/onecall?lat=${cord.lat}&lon=${cord.lon}&units=${settings.units}&exclude=none&appid=${APIKey}`
-        )
-          .then((response) => response.json())
-          .then((data) => {
-            console.log("Data from API: ", data);
-            // const [ weatherData, setWeatherData] = useState(data);
-            setWeatherData(data);
-      
-            let returnedTime = new Date(data.current.dt * 1000);
-            console.log(
-              "Data received time stamp UTC: ",
-              returnedTime.toUTCString()
-            );
-            console.log(
-              "Data received time stamp Local: ",
-              returnedTime.toString()
-            );
-          })
-      
-          .catch((e) => console.log("Error happened!!!", e));
-    })
-      .catch(e => console.log("Error happend when getting settings from server: ", e));
-
-
-
-      
+    console.log("serverCall variable before fetch: ", serverCall)
+    if (!serverCall.settingsLoaded) {
+      fetch("http://localhost:3009/settings")
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("serverCall variable after fetch: ", serverCall)
+        serverCall.settingsLoaded =  true;
+        setServerData(data);
+        console.log("serverCall variable after settingsLoaded updated to true : ", serverCall)
+        console.log("SETTINGS from server: ", data);
+        setSettingsTo(data.defaultUnits);
+        console.log("serverCall variable after updated to fetched units settings: ", serverCall)
+        console.log("Will fetch from settings: ", settings);
+        
+          console.log("Fettcing the weather data now, serverCall is: ", serverCall)
+          fetchWeatherData(data);
+        
+        
+      })
+      .catch((e) =>
+        console.log("Error happend when getting Settings Data from mock server: ", e)
+      );
+    }
     
-  }, [settings]);
+  }, [settings, weatherData]);
+
+
+  function unitsServerUpdate(units) {
+    let newData = {};
+    // fetch current settings data
+    fetch("http://localhost:3009/settings")
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.defaultUnits === units) {
+          //no need to update
+          console.log("Server is already set to use units: ", units);
+          return null;
+        } else {
+          //lets toggle the default units:
+          console.log("Changing defaultUnits to:  ", units);
+          newData = {
+            ...data,
+            defaultUnits: units,
+          };
+
+          let configObj = {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            body: JSON.stringify(newData),
+          };
+
+          console.log("Sending new settings to the Server");
+          fetch("http://localhost:3009/settings", configObj)
+            .then(response => response.json())
+            .then(data => {
+              serverCall.settingsLoaded = false;
+              serverCall.weatherLoaded = false;
+              setSettingsTo(data.defaultUnits);
+              console.log("Server Response from update:", data)
+          })
+            .catch(e => console.log("Error happened when sending data to server: ", e));
+        }
+      })
+      .catch((e) => console.log("Error fetching settings: ", e));
+  }
+
 
   function handleSettingsUnitToggle() {
+    setUIDisable(true);
     if (settings.units === "metric") {
-      setSettings({
-        units: "imperial",
-        speed: "miles/h",
-        speedFactor: 1,
-        temp: "°F",
-      });
+      
+      unitsServerUpdate("imperial");
     } else
-      setSettings({
-        units: "metric",
-        speed: "km/h",
-        speedFactor: 3.6,
-        temp: "°C",
-      });
+      
+      unitsServerUpdate("metric");
   }
 
   return (
     <>
-      <Navbar bg="light" expand="sm">
-        <Container className="">
+      <Navbar className="justify-content-center" bg="light" variant="light" >
           <Navbar.Brand as={Link} to="/">
             My Weather App
           </Navbar.Brand>
-          <Navbar.Toggle aria-controls="basic-navbar-nav" />
-          <Navbar.Collapse id="basic-navbar-nav">
-            <Nav className="me-auto">
-              <Nav.Link as={Link} to="/">
-                Current
-              </Nav.Link>
-              <Nav.Link as={Link} to="/8-days-forecast">
-                8 Days Forecast
-              </Nav.Link>
-              <Nav.Link as={Link} to="/settings">
-                Settings
-              </Nav.Link>
-              <Nav.Link as={Link} to="/about">
-                About
-              </Nav.Link>
+            <Nav  variant="light" defaultActiveKey="/">
+              <Nav.Item>
+                <Nav.Link href="/" as={Link} to="/">
+                  Current
+                </Nav.Link>
+              </Nav.Item>
+              <Nav.Item>
+                <Nav.Link eventKey="forecast" as={Link} to="/8-days-forecast">
+                  8 Days Forecast
+                </Nav.Link>
+              </Nav.Item>
+              <Nav.Item>
+                <Nav.Link eventKey="settings" as={Link} to="Settings">
+                  Settings
+                </Nav.Link>
+              </Nav.Item>
+              <Nav.Item>
+                <Nav.Link eventKey="about" as={Link} to="About">
+                  About
+                </Nav.Link>
+              </Nav.Item>
             </Nav>
-          </Navbar.Collapse>
-        </Container>
       </Navbar>
 
+
       <Route exact path="/">
-        <Current weatherData={weatherData} settings={settings} />
+        <Current className="justify-content-center" weatherData={weatherData} settings={settings} />
       </Route>
       <Route path="/category">
         <Category />
       </Route>
       <Route path="/settings">
-        <Settings settings={settings} handleClick={handleSettingsUnitToggle} />
+        <Settings settings={settings} UIDisable={UIDisable} handleClick={handleSettingsUnitToggle} />
       </Route>
     </>
   );

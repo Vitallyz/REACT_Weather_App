@@ -43,7 +43,7 @@ export default function Header({ weatherData, settings }) {
 
     return (
       <div>
-        <Container>
+        <Container style={{display: 'flex',  justifyContent:'center',  alignItems:'center'}}>
           <Row>
             <Col xs={3}>
               <img
@@ -54,17 +54,17 @@ export default function Header({ weatherData, settings }) {
             </Col>
 
             <Col xs={4}>
-              <h2 style={{ marginBottom: "0px" }}>
+              <h4 style={{ marginBottom: "0px" }}>
                 {weatherData.current.temp.toFixed(1)}{settings.temp}{" "}
                 <span title="Feels Like" style={{ color: "lightGray" }}>
                   {weatherData.current.feels_like.toFixed(1)}{settings.temp}
                 </span>
-              </h2>
+              </h4>
               <p style={{ marginBottom: "-6px" }}>
                 <small style={{ marginBottom: "-5px" }}>
                   Precipitation: {(weatherData.hourly[0].pop * 100).toFixed(0)}%
-                  {weatherData.hourly[0].rain
-                    ? ", " + weatherData.hourly[0].rain.toFixed(1) + " mm"
+                  {weatherData.hourly[0].rain["1h"]
+                    ? ", " + weatherData.hourly[0].rain["1h"].toFixed(1) + " mm"
                     : ""}
                 </small>
               </p>
@@ -133,5 +133,5 @@ export default function Header({ weatherData, settings }) {
         </Container>
       </div>
     );
-  } else return <div>LOADING ...</div>;
+  } else return <div style={{display: 'flex',  justifyContent:'center', alignItems:'center', height: '100vh'}}>LOADING ...</div>;
 }

@@ -18,3 +18,12 @@ small {
   margin-bottom: 2px;
   line-height: 2px;  
 }
+
+
+.centered {
+  height: 80vh; /* Magic here */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bolder;
+}
