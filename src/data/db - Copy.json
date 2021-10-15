@@ -1,9 +1,9 @@
 {
     "settings": {
         "id": 1,
-        "units": "metric",
+        "defaultUnits": "metric",
         "droneSuggestions": false,
-        "locationName": "Melbourne",
+        "defaultCity": "Melbourne",
         "lat": -38.109209,
         "long": 145.191985
     },

@@ -63,7 +63,7 @@ export default function Header({ weatherData, settings }) {
               <p style={{ marginBottom: "-6px" }}>
                 <small style={{ marginBottom: "-5px" }}>
                   Precipitation: {(weatherData.hourly[0].pop * 100).toFixed(0)}%
-                  {weatherData.hourly[0].rain["1h"]
+                  {(weatherData.hourly[0].rain && weatherData.hourly[0].rain["1h"])
                     ? ", " + weatherData.hourly[0].rain["1h"].toFixed(1) + " mm"
                     : ""}
                 </small>

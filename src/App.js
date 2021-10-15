@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Navbar, Container, Nav } from "react-bootstrap";
+import { Navbar, Nav } from "react-bootstrap";
 // import "./App.css";
 import { Link, Route } from "react-router-dom";
 
@@ -32,38 +32,41 @@ const serverCall = {
 function App() {
 
   const [ UIDisable, setUIDisable] = useState(true);
-  
+
+  const [ locations, setLocations ] = useState({});
+
   const [weatherData, setWeatherData] = useState({});
   // console.log("WeatherData when declared", weatherData);
 
   console.log("Initializing Settings");
   // units setting state initialize + set default
-  const [settings, setSettings] = useState({
-  });
+  const [settings, setSettings] = useState({});
 
 
 
-  const [ serverData, setServerData ] = useState();
+  // const [ serverData, setServerData ] = useState();
 
   function setSettingsTo (unitsType) {
+    console.log("Settings var before setSettingTo(units): ", settings)
     if (unitsType === "metric") {
-      setSettings ({
-        ...settings,
+      setSettings (prevState => ({
+        ...prevState,
         units: "metric",
         speed: "km/h",
         speedFactor: 3.6,
         temp: "°C",
-      });
+        
+      }));
     }
 
     if (unitsType === "imperial") {
-      setSettings ({
-        ...settings,
+      setSettings (prevState => ({
+        ...prevState,
         units: "imperial",
         speed: "miles/h",
         speedFactor: 1,
         temp: "°F",
-      })
+      }));
     }
   }
 
@@ -71,7 +74,7 @@ function App() {
   function fetchWeatherData(fetchData) {
     if(!serverCall.weatherLoaded){
       fetch(
-        `https://api.openweathermap.org/data/2.5/onecall?lat=${fetchData.lat}&lon=${fetchData.long}&units=${fetchData.defaultUnits}&exclude=none&appid=${APIKey}`
+        `https://api.openweathermap.org/data/2.5/onecall?lat=${fetchData.lat}&lon=${fetchData.long}&units=${fetchData.units}&exclude=none&appid=${APIKey}`
       )
         .then((response) => response.json())
         .then((data) => {
@@ -80,7 +83,7 @@ function App() {
           setUIDisable(false);
   
           setWeatherData(data);
-          console.log(`WEATHER from server (fetched with units ${fetchData.defaultUnits}): `, data);
+          // console.log(`WEATHER from server (fetched with units ${fetchData.defaultUnits}): `, data);
         })
   
         .catch((e) => console.log("Error happened while getting Weather Data", e));  
@@ -95,6 +98,19 @@ function App() {
   //   speedFactor: 1,
   //   temp: "°F"
   // })
+
+  function fetchLocations() {
+
+    fetch("http://localhost:3009/locations")
+      .then((response) => response.json())
+      .then((locations) => {
+        setLocations(locations);
+        console.log("Locations list from server: ", locations)
+      })
+      .catch(e => console.log("Error fetching locations", e)) 
+
+
+  }
 
   useEffect(() => {
 
@@ -153,22 +169,23 @@ function App() {
     // };
 
     // grab settings from server
-    console.log("serverCall variable before fetch: ", serverCall)
+    // console.log("serverCall variable before fetch: ", serverCall)
     if (!serverCall.settingsLoaded) {
       fetch("http://localhost:3009/settings")
       .then((response) => response.json())
-      .then((data) => {
-        console.log("serverCall variable after fetch: ", serverCall)
+      .then((settings) => {
+        // console.log("serverCall variable after fetch: ", serverCall)
         serverCall.settingsLoaded =  true;
-        setServerData(data);
-        console.log("serverCall variable after settingsLoaded updated to true : ", serverCall)
-        console.log("SETTINGS from server: ", data);
-        setSettingsTo(data.defaultUnits);
-        console.log("serverCall variable after updated to fetched units settings: ", serverCall)
-        console.log("Will fetch from settings: ", settings);
+        setSettings(settings);
+        // console.log("serverCall variable after settingsLoaded updated to true : ", serverCall)
+        console.log("SETTINGS from server: ", settings);
+        setSettingsTo(settings.units);
+        // console.log("serverCall variable after updated to fetched units settings: ", serverCall)
+        // console.log("Will fetch from settings: ", settings);
         
           console.log("Fettcing the weather data now, serverCall is: ", serverCall)
-          fetchWeatherData(data);
+          fetchWeatherData(settings);
+          fetchLocations();
         
         
       })
@@ -186,16 +203,16 @@ function App() {
     fetch("http://localhost:3009/settings")
       .then((response) => response.json())
       .then((data) => {
-        if (data.defaultUnits === units) {
+        if (data.units === units) {
           //no need to update
-          console.log("Server is already set to use units: ", units);
+          // console.log("Server is already set to use units: ", units);
           return null;
         } else {
           //lets toggle the default units:
-          console.log("Changing defaultUnits to:  ", units);
+          // console.log("Changing defaultUnits to:  ", units);
           newData = {
             ...data,
-            defaultUnits: units,
+            units: units,
           };
 
           let configObj = {
@@ -206,14 +223,14 @@ function App() {
             },
             body: JSON.stringify(newData),
           };
-
-          console.log("Sending new settings to the Server");
+          // Sending new settings to the Settings Server
+          // console.log("Sending new settings to the Server");
           fetch("http://localhost:3009/settings", configObj)
             .then(response => response.json())
             .then(data => {
               serverCall.settingsLoaded = false;
               serverCall.weatherLoaded = false;
-              setSettingsTo(data.defaultUnits);
+              setSettingsTo(data.units);
               console.log("Server Response from update:", data)
           })
             .catch(e => console.log("Error happened when sending data to server: ", e));
@@ -226,11 +243,13 @@ function App() {
   function handleSettingsUnitToggle() {
     setUIDisable(true);
     if (settings.units === "metric") {
-      
       unitsServerUpdate("imperial");
     } else
-      
       unitsServerUpdate("metric");
+  }
+
+  function handleLocationUpdate () {
+    console.log("Receved Request to update default location");
   }
 
   return (
@@ -271,7 +290,7 @@ function App() {
         <Category />
       </Route>
       <Route path="/settings">
-        <Settings settings={settings} UIDisable={UIDisable} handleClick={handleSettingsUnitToggle} />
+        <Settings settings={settings} locations={locations} UIDisable={UIDisable} handleClick={handleSettingsUnitToggle} handleLocationUpdate={handleLocationUpdate} />
       </Route>
     </>
   );
