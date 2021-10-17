@@ -4,7 +4,7 @@ import React from "react";
 import { getTimeAMPM, getUVIndexString, firstCharToUpperCase } from "./HelpFunctions";
 
 export default function Header({ weatherData, settings }) {
-  console.log("weatherData: ", weatherData);
+  // console.log("weatherData: ", weatherData);
 
   if (weatherData.current) {
     const UTCTime = weatherData.current.dt;
@@ -26,19 +26,7 @@ export default function Header({ weatherData, settings }) {
     );
 
 
-
-    //   test by changing the values:
-    //   weatherData.current.uvi = 5;
-    //   weatherData.current.wind_deg = 0;
-
-    // convert weather desctiption first caracter to capital.
-    // let weatherDescription = weatherData.current.weather[0].description.slice();
-    // weatherDescription = weatherDescription.charAt(0).toUpperCase() + weatherDescription.slice(1);
-    // console.log("Capitalized weather description string: ", weatherDescription);
-    // weatherData.current.weather[0].description = weatherDescription.slice();
-
-
-    console.log("Settings object in Header: ", settings)
+    // console.log("Settings object in Header: ", settings)
 
 
     return (

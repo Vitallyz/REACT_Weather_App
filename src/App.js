@@ -6,23 +6,10 @@ import { Link, Route } from "react-router-dom";
 import Current from "./components/Current";
 import Settings from "./components/settings";
 
+import EightDaysForecast from "./components/EightDaysForecast";
+
 const APIKey = "4c7de2a60072a31c247adb245b9a407c";
 
-// const Home = () => {
-//   return (
-//     <div>
-//       <h1>Home Page</h1>
-//     </div>
-//   );
-// };
-
-const Category = () => {
-  return (
-    <div>
-      <h2>Category Page</h2>
-    </div>
-  );
-};
 
 const serverCall = {
   settingsLoaded: false,
@@ -33,21 +20,23 @@ function App() {
 
   const [ UIDisable, setUIDisable] = useState(true);
 
-  const [ locations, setLocations ] = useState({});
+  // const [ locations, setLocations ] = useState({});
 
   const [weatherData, setWeatherData] = useState({});
   // console.log("WeatherData when declared", weatherData);
 
-  console.log("Initializing Settings");
+  // console.log("Initializing Settings");
   // units setting state initialize + set default
   const [settings, setSettings] = useState({});
+
+  // const [ newLocation, setNewLocation ] = useState({});
 
 
 
   // const [ serverData, setServerData ] = useState();
 
   function setSettingsTo (unitsType) {
-    console.log("Settings var before setSettingTo(units): ", settings)
+    // console.log("Settings var before setSettingTo(units): ", settings)
     if (unitsType === "metric") {
       setSettings (prevState => ({
         ...prevState,
@@ -83,7 +72,7 @@ function App() {
           setUIDisable(false);
   
           setWeatherData(data);
-          // console.log(`WEATHER from server (fetched with units ${fetchData.defaultUnits}): `, data);
+          console.log(`WEATHER from server (fetched with units ${fetchData.defaultUnits}): `, data);
         })
   
         .catch((e) => console.log("Error happened while getting Weather Data", e));  
@@ -91,82 +80,12 @@ function App() {
     
   }
 
-  // example of imperial units:
-  // const [ units, setUnits] = useState({
-  //   type: "imperial",
-  //   speed: "miles/h",
-  //   speedFactor: 1,
-  //   temp: "°F"
-  // })
-
-  function fetchLocations() {
-
-    fetch("http://localhost:3009/locations")
-      .then((response) => response.json())
-      .then((locations) => {
-        setLocations(locations);
-        console.log("Locations list from server: ", locations)
-      })
-      .catch(e => console.log("Error fetching locations", e)) 
 
 
-  }
+
 
   useEffect(() => {
 
-
-    
-    
-
-    // const cityName = "Melbourne";
-
-    // melbourne
-    // const cord = {
-    //   lat: -37.813999,
-    //   lon: 144.963318,
-    // };
-
-    // jerusalem
-    // const cord = {
-    //   lat: 31.0461,
-    //   lon: 34.8516,
-    // };
-
-    // adelaide
-    // const cord = {
-    //   lat: -34.905168,
-    //   lon: 138.558693,
-    // };
-
-    // perth
-    // const cord = {
-    //   lat: -32.053001,
-    //   lon: 115.872271,
-    // };
-
-    // new york
-    // const cord = {
-    //   lat: 40.695157,
-    //   lon: -73.943979,
-    // };
-
-    // toronto
-    // const cord = {
-    //   lat: 43.778908,
-    //   lon:-79.746223,
-    // };
-
-    // london
-    // const cord = {
-    //   lat: 51.462597,
-    //   lon: -0.096517,
-    // };
-
-    //indonesia
-    // const cord = {
-    //   lat: -1.878772,
-    //   lon: 102.930753,
-    // };
 
     // grab settings from server
     // console.log("serverCall variable before fetch: ", serverCall)
@@ -183,9 +102,9 @@ function App() {
         // console.log("serverCall variable after updated to fetched units settings: ", serverCall)
         // console.log("Will fetch from settings: ", settings);
         
-          console.log("Fettcing the weather data now, serverCall is: ", serverCall)
+          // console.log("Fettcing the weather data now, serverCall is: ", serverCall)
           fetchWeatherData(settings);
-          fetchLocations();
+          // fetchLocations();
         
         
       })
@@ -231,7 +150,7 @@ function App() {
               serverCall.settingsLoaded = false;
               serverCall.weatherLoaded = false;
               setSettingsTo(data.units);
-              console.log("Server Response from update:", data)
+              // console.log("Server Response from update:", data)
           })
             .catch(e => console.log("Error happened when sending data to server: ", e));
         }
@@ -248,8 +167,54 @@ function App() {
       unitsServerUpdate("metric");
   }
 
-  function handleLocationUpdate () {
-    console.log("Receved Request to update default location");
+
+  function locationServerUpdate(name, lat, long) {
+    let newData = {};
+    // fetch current settings data
+    fetch("http://localhost:3009/settings")
+      .then((response) => response.json())
+      .then((data) => {
+        
+          //lets create new data with updated location info
+          // console.log("Changing defaultUnits to:  ", units);
+          newData = {
+            ...data,
+            locationName: name,
+            lat: lat,
+            long: long,
+          };
+
+          let configObj = {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            body: JSON.stringify(newData),
+          };
+          // Sending new settings to the Settings Server
+          // console.log("Sending new settings to the Server");
+          fetch("http://localhost:3009/settings", configObj)
+            .then(response => response.json())
+            .then(data => {
+              serverCall.settingsLoaded = false;
+              serverCall.weatherLoaded = false;
+              setSettingsTo(data.units);
+              // console.log("Server Response from update:", data)
+          })
+            .catch(e => console.log("Error happened when sending data to server: ", e));
+        
+      })
+      .catch((e) => console.log("Error fetching settings: ", e));
+  }
+
+  function handleLocationUpdate (event) {
+    const name = event.target[0].value;
+    const lat = event.target[1].value;
+    const long =event.target[2].value
+    locationServerUpdate(name, lat, long);
+    
+    
   }
 
   return (
@@ -265,7 +230,7 @@ function App() {
                 </Nav.Link>
               </Nav.Item>
               <Nav.Item>
-                <Nav.Link eventKey="forecast" as={Link} to="/8-days-forecast">
+                <Nav.Link eventKey="forecast" as={Link} to="/EightDaysForecast">
                   8 Days Forecast
                 </Nav.Link>
               </Nav.Item>
@@ -286,12 +251,15 @@ function App() {
       <Route exact path="/">
         <Current className="justify-content-center" weatherData={weatherData} settings={settings} />
       </Route>
-      <Route path="/category">
-        <Category />
+      <Route path="/EightDaysForecast">
+        <EightDaysForecast weatherData={weatherData} settings={settings} />
       </Route>
+
       <Route path="/settings">
-        <Settings settings={settings} locations={locations} UIDisable={UIDisable} handleClick={handleSettingsUnitToggle} handleLocationUpdate={handleLocationUpdate} />
+        <Settings settings={settings} UIDisable={UIDisable} handleClick={handleSettingsUnitToggle} handleLocationUpdate={handleLocationUpdate} />
+      
       </Route>
+
     </>
   );
 }
