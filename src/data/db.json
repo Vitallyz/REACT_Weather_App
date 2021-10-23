@@ -1,11 +1,14 @@
 {
   "settings": {
     "id": 1,
-    "units": "imperial",
+    "units": "metric",
     "droneSuggestions": false,
-    "locationName": "Melbourne1",
-    "lat": "-37.813999",
-    "long": "144.963318"
+    "locationName": "Melbourne",
+    "lat": "-34.905168",
+    "long": "138.558693",
+    "speed": "km/h",
+    "speedFactor": 3.6,
+    "temp": "°C"
   },
   "locations": [
     {
