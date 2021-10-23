@@ -8,7 +8,7 @@ import Settings from "./components/settings";
 
 import EightDaysForecast from "./components/EightDaysForecast";
 
-const APIKey = "4c7de2a60072a31c247adb245b9a407c";
+const APIKey = process.env.REACT_APP_API_KEY;
 
 
 
