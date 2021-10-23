@@ -1,7 +1,7 @@
 import { Container, Row, Col } from "react-bootstrap";
 import React from "react";
 
-import { getTimeAMPM, getUVIndexString, firstCharToUpperCase } from "./HelpFunctions";
+import { getTimeAMPM, getUVIndexString, firstCharToUpperCase } from "../AidFunctions/HelpFunctions";
 
 export default function Header({ weatherData, settings }) {
   // console.log("weatherData: ", weatherData);
