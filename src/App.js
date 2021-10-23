@@ -59,61 +59,40 @@ function App() {
     }
   }
 
-
-  function fetchWeatherData(fetchData) {
-    if(!serverCall.weatherLoaded){
-      fetch(
-        `https://api.openweathermap.org/data/2.5/onecall?lat=${fetchData.lat}&lon=${fetchData.long}&units=${fetchData.units}&exclude=none&appid=${APIKey}`
-      )
-        .then((response) => response.json())
-        .then((data) => {
-          
-          serverCall.weatherLoaded = true;
-          setUIDisable(false);
-  
-          setWeatherData(data);
-          console.log(`WEATHER from server (fetched with units ${fetchData.defaultUnits}): `, data);
-        })
-  
-        .catch((e) => console.log("Error happened while getting Weather Data", e));  
-    }
-    
-  }
-
-
-
-
-
   useEffect(() => {
 
 
-    // grab settings from server
-    // console.log("serverCall variable before fetch: ", serverCall)
-    if (!serverCall.settingsLoaded) {
-      fetch("http://localhost:3009/settings")
+    // grab settings from server and weather data from weather API
+
+    fetch("http://localhost:3009/settings")
       .then((response) => response.json())
       .then((settings) => {
-        // console.log("serverCall variable after fetch: ", serverCall)
-        serverCall.settingsLoaded =  true;
-        setSettings(settings);
-        // console.log("serverCall variable after settingsLoaded updated to true : ", serverCall)
+
+        serverCall.settingsLoaded = true;
+        setSettings(prevSttings => ({ ...prevSttings, ...settings }));
+
         console.log("SETTINGS from server: ", settings);
         setSettingsTo(settings.units);
-        // console.log("serverCall variable after updated to fetched units settings: ", serverCall)
-        // console.log("Will fetch from settings: ", settings);
-        
-          // console.log("Fettcing the weather data now, serverCall is: ", serverCall)
-          fetchWeatherData(settings);
-          // fetchLocations();
-        
-        
+
+        return fetch(
+          `https://api.openweathermap.org/data/2.5/onecall?lat=${settings.lat}&lon=${settings.long}&units=${settings.units}&exclude=none&appid=${APIKey}`
+        )
+          .then((response) => response.json())
+          .then((data) => {
+
+            serverCall.weatherLoaded = true;
+            setUIDisable(false);
+
+            setWeatherData(data);
+
+          })
       })
       .catch((e) =>
         console.log("Error happend when getting Settings Data from mock server: ", e)
       );
-    }
-    
-  }, [settings, weatherData]);
+
+
+  }, [settings.units]);
 
 
   function unitsServerUpdate(units) {
@@ -129,11 +108,20 @@ function App() {
         } else {
           //lets toggle the default units:
           // console.log("Changing defaultUnits to:  ", units);
+          
+ 
+
+
           newData = {
             ...data,
             units: units,
           };
-
+          
+          
+          console.log("Our settings data is: ", settings)
+          console.log("Our newData is: ", newData)
+          
+          
           let configObj = {
             method: "POST",
             headers: {

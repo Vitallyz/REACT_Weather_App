@@ -32,6 +32,7 @@ export default function Settings({ settings, handleClick, handleLocationUpdate, 
           </div>
           <div>
             <h6>Deafult Location:</h6>
+            {console.log("Settings object within Settings Component: ", settings)}
             <p style={{ marginBottom: "-4px" }}>{settings.locationName} (Lat: {settings.lat} Long: {settings.long})</p>
           </div> <br />
           <LocationForm disabled={UIDisable} handleLocationUpdate={handleLocationUpdate} />
