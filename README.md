@@ -6,6 +6,7 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 In order to run this project in the project directory, you need to run (by default runs on port 3000):
 
+### `npm install`
 ### `npm start`
 
 Also need to start a mock-server in order for this app to work properly (by default runs on port 3009):
